@@ -1,28 +1,50 @@
 const main = async () => {
-    const [owner, randomPerson] = await hre.ethers.getSigners();
+    // const [owner, randomPerson] = await hre.ethers.getSigners();
     const waveContractFactory = await hre.ethers.getContractFactory('WavePortal');
-    const waveContract = await waveContractFactory.deploy();
+    const waveContract = await waveContractFactory.deploy({
+        value : hre.ethers.utils.parseEther('0.1'),
+    });
     await waveContract.deployed();
 
-    console.log("Contract deployed to:",waveContract.address);
-    console.log("Contract deployed by:",owner.address);
+    console.log("Contract add to:",waveContract.address);
+    // console.log("Contract deployed by:",owner.address);
 
-    let waveCount;
-    waveCount = await waveContract.getTotalWaves();
+    /*
+    Get Contract balance
+   */
 
-    let waveTxn = await waveContract.wave();
+    let contractBalance = await hre.ethers.provider.getBalance(
+        waveContract.address
+    );
+
+    console.log(
+        'Contract balance:',
+        hre.ethers.utils.formatEther(contractBalance)
+      );
+
+
+    // let waveCount;
+    // waveCount = await waveContract.getTotalWaves();
+    // console.log(waveCount[1].toNumber());
+
+    let waveTxn = await waveContract.wave("Hi, This is a message!");
     await waveTxn.wait();
 
-    waveCount = await waveContract.getTotalWaves();
-
-    waveTxn = await waveContract.connect(randomPerson).wave();
-    await waveTxn.wait();
-
-    waveCount = await waveContract.getTotalWaves();
-
-    waveTxn = await waveContract.wave();
-    await waveTxn.wait();
-    waveCount = await waveContract.getTotalWaves();
+    /*
+        Get Contract balance to see what happened!
+   */
+    
+    contractBalance = await hre.ethers.provider.getBalance(waveContract.address);
+    console.log(
+        'Contract balance:',
+        hre.ethers.utils.formatEther(contractBalance)
+    );
+    // const [_, randomPerson] = await hre.ethers.getSigners();
+    // waveTxn = await waveContract.connect(randomPerson).wave("Hi, This is another message");
+    // await waveTxn.wait();
+    
+    let allWaves = await waveContract.getAllWaves();
+    console.log(allWaves);
 
 };
 
